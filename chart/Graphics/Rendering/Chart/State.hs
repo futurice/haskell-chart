@@ -92,14 +92,18 @@ plotRight pm = do
 -- | Pop and return the next color from the state
 takeColor :: EC l (AlphaColour Double)
 takeColor = liftCState $ do
-  (c:cs) <- use colors
+  (c,cs) <- fromInfiniteList `fmap` use colors
   colors .= cs
   return c
 
 -- | Pop and return the next shape from the state
 takeShape :: EC l PointShape
 takeShape = liftCState $ do
-  (c:cs) <- use shapes
+  (c,cs) <- fromInfiniteList `fmap` use shapes
   shapes .= cs
   return c
 
+-- https://github.com/timbod7/haskell-chart/pull/197
+fromInfiniteList :: [a] -> (a, [a])
+fromInfiniteList []     = error "fromInfiniteList (takeColor or takeShape): empty list"
+fromInfiniteList (x:xs) = (x, xs)
